@@ -17,15 +17,12 @@ void Game::reset()
     m_gameOver = false;
 }
 
-bool Game::handleClick(sf::Vector2i mousePosition)
+bool Game::handleMove(int row, int col)
 {
-    if (m_gameOver || !pointInBoard(mousePosition))
+    if (m_gameOver)
     {
         return false;
     }
-
-    const int col = static_cast<int>((static_cast<float>(mousePosition.x) - kBoardLeft) / cellSize());
-    const int row = static_cast<int>((static_cast<float>(mousePosition.y) - kBoardTop) / cellSize());
 
     if (row < 0 || row > 2 || col < 0 || col > 2 || m_board[row][col] != Cell::Empty)
     {
@@ -89,34 +86,6 @@ std::string Game::getStatusText() const
     }
 
     return (m_currentPlayer == Cell::X) ? "Turn: X" : "Turn: O";
-}
-
-float Game::boardLeft() const
-{
-    return kBoardLeft;
-}
-
-float Game::boardTop() const
-{
-    return kBoardTop;
-}
-
-float Game::boardSize() const
-{
-    return kBoardSize;
-}
-
-float Game::cellSize() const
-{
-    return kBoardSize / 3.f;
-}
-
-bool Game::pointInBoard(sf::Vector2i point) const
-{
-    const float x = static_cast<float>(point.x);
-    const float y = static_cast<float>(point.y);
-
-    return x >= kBoardLeft && x < (kBoardLeft + kBoardSize) && y >= kBoardTop && y < (kBoardTop + kBoardSize);
 }
 
 Game::Cell Game::checkWinner() const

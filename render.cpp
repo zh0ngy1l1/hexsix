@@ -11,6 +11,7 @@
 #include <SFML/Window/VideoMode.hpp>
 
 #include <array>
+#include <optional>
 
 Render::Render()
     : m_window(sf::VideoMode({600, 700}), "Tic-Tac-Toe")
@@ -54,7 +55,10 @@ void Render::processEvents(Game& game)
         {
             if (mousePressed->button == sf::Mouse::Button::Left)
             {
-                game.handleClick(mousePressed->position);
+                if (const auto cell = mouseToBoardCell(mousePressed->position))
+                {
+                    game.handleMove(cell->y, cell->x);
+                }
             }
         }
     }
@@ -73,10 +77,10 @@ void Render::draw(const Game& game)
 
 void Render::drawGrid(const Game& game)
 {
-    const float left = game.boardLeft();
-    const float top = game.boardTop();
-    const float boardSize = game.boardSize();
-    const float cell = game.cellSize();
+    const float left = kBoardLeft;
+    const float top = kBoardTop;
+    const float boardSize = kBoardSize;
+    const float cell = kBoardSize / 3.f;
 
     const sf::Color gridColor(30, 30, 30);
 
@@ -96,9 +100,9 @@ void Render::drawGrid(const Game& game)
 
 void Render::drawMarks(const Game& game)
 {
-    const float left = game.boardLeft();
-    const float top = game.boardTop();
-    const float cell = game.cellSize();
+    const float left = kBoardLeft;
+    const float top = kBoardTop;
+    const float cell = kBoardSize / 3.f;
 
     for (int row = 0; row < 3; ++row)
     {
@@ -190,4 +194,31 @@ bool Render::tryLoadSystemFont()
     }
 
     return false;
+}
+
+bool Render::pointInBoard(sf::Vector2i point) const
+{
+    const float x = static_cast<float>(point.x);
+    const float y = static_cast<float>(point.y);
+
+    return x >= kBoardLeft && x < (kBoardLeft + kBoardSize) && y >= kBoardTop && y < (kBoardTop + kBoardSize);
+}
+
+std::optional<sf::Vector2i> Render::mouseToBoardCell(sf::Vector2i mousePosition) const
+{
+    if (!pointInBoard(mousePosition))
+    {
+        return std::nullopt;
+    }
+
+    const float cellSize = kBoardSize / 3.f;
+    const int col = static_cast<int>((static_cast<float>(mousePosition.x) - kBoardLeft) / cellSize);
+    const int row = static_cast<int>((static_cast<float>(mousePosition.y) - kBoardTop) / cellSize);
+
+    if (row < 0 || row > 2 || col < 0 || col > 2)
+    {
+        return std::nullopt;
+    }
+
+    return sf::Vector2i{col, row};
 }

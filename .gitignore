@@ -1,41 +1,43 @@
-# Prerequisites
-*.d
+# CMake / build output
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+compile_commands.json
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
+# Binaries and libraries
 *.exe
 *.out
 *.app
+*.dll
+*.dylib
+*.so
+*.a
+*.lib
 
-# debug information files
+# Object and dependency files
+*.o
+*.obj
+*.lo
+*.slo
+*.d
 *.dwo
+
+# Debug symbols / linker artifacts
+*.ilk
+*.pdb
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Fortran modules
+*.mod
+*.smod
+
+# IDE/editor
+.vscode/
+.idea/
+.DS_Store
