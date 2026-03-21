@@ -1,0 +1,3 @@
+/Users/david/code/hexsix/build/CMakeFiles/hexsix.dir
+/Users/david/code/hexsix/build/CMakeFiles/edit_cache.dir
+/Users/david/code/hexsix/build/CMakeFiles/rebuild_cache.dir
