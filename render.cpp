@@ -80,20 +80,21 @@ void Render::drawGrid(const Game& game)
     const float left = kBoardLeft;
     const float top = kBoardTop;
     const float boardSize = kBoardSize;
-    const float cell = kBoardSize / 3.f;
+    const float cell = kBoardSize / static_cast<float>(Game::BOARD_SIZE);
 
+    const float thickness = 5.f;
     const sf::Color gridColor(30, 30, 30);
 
-    for (int i = 1; i <= 2; ++i)
+    for (int i = 0; i <= Game::BOARD_SIZE; ++i)
     {
-        sf::RectangleShape vLine({5.f, boardSize});
+        sf::RectangleShape vLine({thickness, boardSize + thickness});
         vLine.setFillColor(gridColor);
-        vLine.setPosition({left + cell * static_cast<float>(i) - 2.5f, top});
+        vLine.setPosition({left + cell * static_cast<float>(i) - thickness/2.f, top - thickness/2.f});
         m_window.draw(vLine);
 
-        sf::RectangleShape hLine({boardSize, 5.f});
+        sf::RectangleShape hLine({boardSize + thickness, thickness});
         hLine.setFillColor(gridColor);
-        hLine.setPosition({left, top + cell * static_cast<float>(i) - 2.5f});
+        hLine.setPosition({left - thickness/2.f, top + cell * static_cast<float>(i) - thickness/2.f});
         m_window.draw(hLine);
     }
 }
@@ -102,22 +103,22 @@ void Render::drawMarks(const Game& game)
 {
     const float left = kBoardLeft;
     const float top = kBoardTop;
-    const float cell = kBoardSize / 3.f;
+    const float cell = kBoardSize / static_cast<float>(Game::BOARD_SIZE);
 
-    for (int row = 0; row < 3; ++row)
+    for (int row = 0; row < Game::BOARD_SIZE; ++row)
     {
-        for (int col = 0; col < 3; ++col)
+        for (int col = 0; col < Game::BOARD_SIZE; ++col)
         {
             const float centerX = left + (static_cast<float>(col) + 0.5f) * cell;
             const float centerY = top + (static_cast<float>(row) + 0.5f) * cell;
 
             if (game.getCell(row, col) == Game::Cell::X)
             {
-                drawX(centerX, centerY, cell * 0.65f);
+                drawX(centerX, centerY, cell * 0.4f);
             }
             else if (game.getCell(row, col) == Game::Cell::O)
             {
-                drawO(centerX, centerY, cell * 0.30f);
+                drawO(centerX, centerY, cell * 0.4f);
             }
         }
     }
@@ -143,19 +144,17 @@ void Render::drawStatus(const Game& game)
     m_window.draw(help);
 }
 
-void Render::drawX(float centerX, float centerY, float size)
+void Render::drawX(float centerX, float centerY, float radius)
 {
-    const float thickness = 10.f;
-
-    sf::RectangleShape lineA({size, thickness});
+    sf::RectangleShape lineA({radius*2.f, kMarkThickness});
     lineA.setFillColor(sf::Color(220, 50, 47));
-    lineA.setOrigin({size / 2.f, thickness / 2.f});
+    lineA.setOrigin({radius, kMarkThickness / 2.f});
     lineA.setPosition({centerX, centerY});
     lineA.setRotation(sf::degrees(45.f));
 
-    sf::RectangleShape lineB({size, thickness});
+    sf::RectangleShape lineB({radius*2.f, kMarkThickness});
     lineB.setFillColor(sf::Color(220, 50, 47));
-    lineB.setOrigin({size / 2.f, thickness / 2.f});
+    lineB.setOrigin({radius, kMarkThickness / 2.f});
     lineB.setPosition({centerX, centerY});
     lineB.setRotation(sf::degrees(-45.f));
 
@@ -165,9 +164,10 @@ void Render::drawX(float centerX, float centerY, float size)
 
 void Render::drawO(float centerX, float centerY, float radius)
 {
+    radius -= kMarkThickness;
     sf::CircleShape ring(radius);
     ring.setFillColor(sf::Color::Transparent);
-    ring.setOutlineThickness(10.f);
+    ring.setOutlineThickness(kMarkThickness);
     ring.setOutlineColor(sf::Color(38, 139, 210));
     ring.setOrigin({radius, radius});
     ring.setPosition({centerX, centerY});
@@ -211,11 +211,11 @@ std::optional<sf::Vector2i> Render::mouseToBoardCell(sf::Vector2i mousePosition)
         return std::nullopt;
     }
 
-    const float cellSize = kBoardSize / 3.f;
+    const float cellSize = kBoardSize / static_cast<float>(Game::BOARD_SIZE);
     const int col = static_cast<int>((static_cast<float>(mousePosition.x) - kBoardLeft) / cellSize);
     const int row = static_cast<int>((static_cast<float>(mousePosition.y) - kBoardTop) / cellSize);
 
-    if (row < 0 || row > 2 || col < 0 || col > 2)
+    if (row < 0 || row >= Game::BOARD_SIZE || col < 0 || col >= Game::BOARD_SIZE)
     {
         return std::nullopt;
     }

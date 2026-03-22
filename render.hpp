@@ -24,7 +24,7 @@ private:
     void drawMarks(const Game& game);
     void drawStatus(const Game& game);
 
-    void drawX(float centerX, float centerY, float size);
+    void drawX(float centerX, float centerY, float radius);
     void drawO(float centerX, float centerY, float radius);
 
     [[nodiscard]] bool pointInBoard(sf::Vector2i point) const;
@@ -39,4 +39,6 @@ private:
     static constexpr float kBoardLeft = 50.f;
     static constexpr float kBoardTop = 50.f;
     static constexpr float kBoardSize = 500.f;
+
+    static constexpr float kMarkThickness = 10.f;
 };
