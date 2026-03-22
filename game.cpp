@@ -7,12 +7,9 @@ Game::Game()
 
 void Game::reset()
 {
-    for (auto& row : m_board)
-    {
-        row.fill(Cell::Empty);
-    }
-
-    m_currentPlayer = Cell::X;
+    m_boardX.reset();
+    m_boardO.reset();
+    m_turn = 1;
     m_winner = Cell::Empty;
     m_gameOver = false;
 }
@@ -24,25 +21,29 @@ bool Game::handleMove(int row, int col)
         return false;
     }
 
-    if (row < 0 || row > 2 || col < 0 || col > 2 || m_board[row][col] != Cell::Empty)
+    if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE)
     {
         return false;
     }
 
-    m_board[row][col] = m_currentPlayer;
-
-    m_winner = checkWinner();
-    if (m_winner != Cell::Empty)
+    const int cellIdx = BOARD_SIZE * row + col;
+    if (m_boardX[cellIdx] || m_boardO[cellIdx])
     {
-        m_gameOver = true;
+        return false;
     }
-    else if (boardFull())
+
+    const bool xTurn = isXTurn();
+    std::bitset<BOARD_CELLS>& curr_board = xTurn ? m_boardX : m_boardO;
+    curr_board[cellIdx] = 1;
+
+    m_winner = detectWinner(cellIdx, curr_board);
+    if (m_winner != Cell::Empty || boardFull())
     {
         m_gameOver = true;
     }
     else
     {
-        m_currentPlayer = (m_currentPlayer == Cell::X) ? Cell::O : Cell::X;
+        ++m_turn;
     }
 
     return true;
@@ -50,7 +51,16 @@ bool Game::handleMove(int row, int col)
 
 Game::Cell Game::getCell(int row, int col) const
 {
-    return m_board[row][col];
+    const int cellIdx = BOARD_SIZE * row + col;
+    if (m_boardX[cellIdx])
+    {
+        return Cell::X;
+    }
+    if (m_boardO[cellIdx])
+    {
+        return Cell::O;
+    }
+    return Cell::Empty;
 }
 
 bool Game::isGameOver() const
@@ -63,9 +73,9 @@ Game::Cell Game::getWinner() const
     return m_winner;
 }
 
-Game::Cell Game::getCurrentPlayer() const
+bool Game::isXTurn() const
 {
-    return m_currentPlayer;
+    return (m_turn % 4) < 2;
 }
 
 std::string Game::getStatusText() const
@@ -85,52 +95,50 @@ std::string Game::getStatusText() const
         return "Draw  (Press R to restart)";
     }
 
-    return (m_currentPlayer == Cell::X) ? "Turn: X" : "Turn: O";
-}
-
-Game::Cell Game::checkWinner() const
-{
-    auto lineWinner = [](Cell a, Cell b, Cell c) -> Cell {
-        if (a != Cell::Empty && a == b && b == c)
-        {
-            return a;
-        }
-        return Cell::Empty;
-    };
-
-    for (int i = 0; i < 3; ++i)
-    {
-        if (const Cell rowWinner = lineWinner(m_board[i][0], m_board[i][1], m_board[i][2]); rowWinner != Cell::Empty)
-        {
-            return rowWinner;
-        }
-
-        if (const Cell colWinner = lineWinner(m_board[0][i], m_board[1][i], m_board[2][i]); colWinner != Cell::Empty)
-        {
-            return colWinner;
-        }
-    }
-
-    if (const Cell diagWinner = lineWinner(m_board[0][0], m_board[1][1], m_board[2][2]); diagWinner != Cell::Empty)
-    {
-        return diagWinner;
-    }
-
-    return lineWinner(m_board[0][2], m_board[1][1], m_board[2][0]);
+    return isXTurn() ? "Turn: X" : "Turn: O";
 }
 
 bool Game::boardFull() const
 {
-    for (const auto& row : m_board)
+    return (m_boardX | m_boardO).count() == BOARD_CELLS;
+}
+
+Game::Cell Game::detectWinner(int cellIdx, const std::bitset<BOARD_CELLS>& curr_board) const
+{
+    const int row = cellIdx / BOARD_SIZE;
+    const int col = cellIdx % BOARD_SIZE;
+
+    auto hasRunThrough = [&](int dr, int dc) -> bool
     {
-        for (const Cell cell : row)
+        int count = 1;
+
+        int r = row + dr;
+        int c = col + dc;
+        while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE &&
+               curr_board[BOARD_SIZE * r + c])
         {
-            if (cell == Cell::Empty)
-            {
-                return false;
-            }
+            ++count;
+            r += dr;
+            c += dc;
         }
+
+        r = row - dr;
+        c = col - dc;
+        while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE &&
+               curr_board[BOARD_SIZE * r + c])
+        {
+            ++count;
+            r -= dr;
+            c -= dc;
+        }
+
+        return count >= WIN_LENGTH;
+    };
+
+    if (hasRunThrough(0, 1) || hasRunThrough(1, 0) || hasRunThrough(1, 1))
+    {
+        return (&curr_board == &m_boardX) ? Cell::X : Cell::O;
     }
 
-    return true;
+    return Cell::Empty;
 }
