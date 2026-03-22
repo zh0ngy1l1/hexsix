@@ -6,7 +6,7 @@
 class Game
 {
 public:
-    static constexpr int BOARD_SIZE = 7;
+    static constexpr int BOARD_SIZE = 20;
     static constexpr int WIN_LENGTH = 6;
     static constexpr int BOARD_CELLS = BOARD_SIZE * BOARD_SIZE;
 

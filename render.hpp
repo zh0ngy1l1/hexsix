@@ -28,6 +28,7 @@ private:
     void drawX(float centerX, float centerY, float radius);
     void drawO(float centerX, float centerY, float radius);
     void resetView();
+    [[nodiscard]] float boardSize() const;
 
     [[nodiscard]] bool pointInBoard(sf::Vector2f point) const;
     [[nodiscard]] std::optional<sf::Vector2i> mouseToBoardCell(sf::Vector2f mousePosition) const;
@@ -43,9 +44,6 @@ private:
     sf::Vector2i m_lastPanPixel{0, 0};
     std::string m_status;
 
-    static constexpr float kBoardLeft = 50.f;
-    static constexpr float kBoardTop = 50.f;
-    static constexpr float kBoardSize = 500.f;
     static constexpr float kReferenceBoardSize = 15.f;
     static constexpr float kMinZoomMultiplier = 0.5f;
     static constexpr float kMaxZoomMultiplier = 3.f;
